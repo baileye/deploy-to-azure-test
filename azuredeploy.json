@@ -22,11 +22,11 @@
         "description": "The location to use for creating the web app and hosting plan. It must be one of the Azure locations that support web apps."
       }
     },
-    "batchAccount_name": {
+    "batchAccountName": {
       "defaultValue": "flamenco",
       "type": "string"
     },
-    "storageAccount_name": {
+    "storageAccountName": {
       "defaultValue": "cloud01diag",
       "type": "string"
     },
@@ -36,21 +36,21 @@
     "branch": {
       "type": "string"
     },
-    "flamencoServerURL": {
+    "flamencoServerUrl": {
       "type": "string",
       "defaultValue": "https://cloud.blender.org/",
       "metadata": {
         "description": "URL of the Flamenco Server"
       }
     },
-    "admin_username": {
+    "adminUsername": {
       "type": "string",
       "defaultValue": "azureuser",
       "metadata": {
         "description": "Username of the admin user (not 'root')"
       }
     },
-    "admin_sshKey": {
+    "adminSshKey": {
       "type": "string",
       "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPrFG8zEdomtcrUzMLCBEncSb5Z0/tFSPGKyZr0mIZpR7SyarX/eKTB6Cha7m54IEpbv3O26v2lU3/Nx6mBRH1XQm0Z32UHJfvl3bzKPeZhZYNkYm0GnvDrNu577xGBeorPXGySxPMfqnr7kQF1OyhQHbejXnTgWBnwr9bqhwyvLcIrpd2F1klLwSNSAaE9B0CoON9jwkDPk2tXYEMNaK1uSpWsx2VFEk6t1zrL2Naxs1NxX8Bm4+O2NW/7v1briFRTfc8kd74wm7TLZvqsq81IwUKQBKv/1XW783cD0elNZ4s9bmtpUpiR9H4Gqw9XlmnYTTpOJwiDVECEXNi0vdoK2hnY+q8KH1K9cKOfiE2GcTdWjwDfBBuEoTmBWFPQmo3zY7Fq2gxjfOyPfarhBPKO9Sn0xmr2W6qGgOxuw8RXFfqZjV3Nem2g9CGUQAi7q6z8BnSvLJE9/t2DogYI/czrVSiBeoxSjrZadnYCNnZh89JOIzFcdvekHA+v7wLRODxLU2ggEfgrxcXJO7T5esRY5508UFQ0lbnQmGI8tjcRXzJkg2bA/ko7eATLJe+DvhOfW9YPbFsi3cQsyRSkVkLqy+r3uvdwISwyxKgyQkK5LILy/usLqf4crCEi7+D3XoYTazlMtt9B75ftekoLa+SpiUHnxZs8xGrDOoPnehU1w== sybren@BI",
       "metadata": {
@@ -78,13 +78,13 @@
         },
         "osProfile": {
           "computerName": "flamenco-manager",
-          "adminUsername": "[parameters('admin_username')]",
+          "adminUsername": "[parameters('adminUsername')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": true,
             "ssh": {
               "publicKeys": [
                 {
-                  "keyData": "[parameters('admin_sshKey')]"
+                  "keyData": "[parameters('adminSshKey')]"
                 }
               ]
             }
@@ -100,7 +100,7 @@
             "[resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')]"
           ],
           "properties": {
-            "FLAMENCO_SERVER_URL": "[parameters('flamencoServerURL')]",
+            "FLAMENCO_SERVER_URL": "[parameters('flamencoServerUrl')]",
             "OWN_URL": "[concat('https://',reference(resourceId('Microsoft.Web/sites', parameters('siteName'))).hostNames[0])]",
             "command": "bash scripts/azuredeploy.sh"
           }
