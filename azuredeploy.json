@@ -11,6 +11,7 @@
     },
     "hostingPlanName": {
       "type": "string",
+      "defaultValue": "[parameters('siteName')]",
       "metadata": {
         "description": "The name of the App Service plan to use for hosting the web app."
       }
