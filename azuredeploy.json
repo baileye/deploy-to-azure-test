@@ -60,6 +60,174 @@
   },
   "resources": [
     {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "FlamencoManager.NetSecGroup",
+      "apiVersion": "2018-10-01",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 300,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 300,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "FlamencoManager.VNet",
+      "apiVersion": "2018-10-01",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/24"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+              },
+              "serviceEndpoints": [],
+              "delegations": []
+            }
+          }
+        ],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "FlamencoManager.VNet/default",
+      "apiVersion": "2018-10-01",
+      "properties": {
+        "addressPrefix": "10.0.0.0/24",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+        },
+        "serviceEndpoints": [],
+        "delegations": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'FlamencoManager.VNet')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "sku": {
+        "name": "Basic",
+        "tier": "Regional"
+      },
+      "name": "FlamencoManager.PublicIPv4",
+      "apiVersion": "2018-10-01",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "sku": {
+        "name": "Basic",
+        "tier": "Regional"
+      },
+      "name": "FlamencoManager.PublicIPv6",
+      "apiVersion": "2018-10-01",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "publicIPAddressVersion": "IPv6",
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "FlamencoManager.NIC",
+      "apiVersion": "2018-10-01",
+      "location": "[parameters('siteLocation')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAddress": "10.0.0.1",
+              "privateIPAllocationMethod": "Static",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv4')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'FlamencoManager.VNet', 'default')]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          },
+          {
+            "name": "ipconfig2",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv6')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'FlamencoManager.VNet', 'default')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+        },
+        "primary": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv4')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv6')]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'FlamencoManager.VNet', 'default')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]"
+      ]
+    },
+    {
       "name": "Flamenco-Manager",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
@@ -89,6 +257,16 @@
               ]
             }
           }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'FlamencoManager.NIC')]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
         }
       },
       "resources": [
