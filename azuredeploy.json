@@ -101,7 +101,7 @@
           ],
           "properties": {
             "FLAMENCO_SERVER_URL": "[parameters('flamencoServerUrl')]",
-            "OWN_URL": "[concat('https://',reference(resourceId('Microsoft.Web/sites', parameters('siteName'))).hostNames[0])]",
+            "OWN_URL": "[concat('https://',resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')).hostNames[0])]",
             "command": "bash scripts/azuredeploy.sh"
           }
         },
@@ -124,7 +124,7 @@
   "outputs": {
     "siteUri": {
       "type": "string",
-      "value": "[concat('https://',reference(resourceId('Microsoft.Web/sites', parameters('siteName'))).hostNames[0])]"
+      "value": "[concat('https://',resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')).hostNames[0])]"
     }
   }
 }
