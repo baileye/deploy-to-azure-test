@@ -1,5 +1,5 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
@@ -22,6 +22,14 @@
         "description": "The location to use for creating the web app and hosting plan. It must be one of the Azure locations that support web apps."
       }
     },
+    "batchAccount_name": {
+      "defaultValue": "flamenco",
+      "type": "string"
+    },
+    "storageAccount_name": {
+      "defaultValue": "cloud01diag",
+      "type": "string"
+    },
     "repoURL": {
       "type": "string"
     },
@@ -34,50 +42,62 @@
       "metadata": {
         "description": "URL of the Flamenco Server"
       }
+    },
+    "admin_username": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Username of the admin user (not 'root')"
+      }
+    },
+    "admin_sshKey": {
+      "type": "string",
+      "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPrFG8zEdomtcrUzMLCBEncSb5Z0/tFSPGKyZr0mIZpR7SyarX/eKTB6Cha7m54IEpbv3O26v2lU3/Nx6mBRH1XQm0Z32UHJfvl3bzKPeZhZYNkYm0GnvDrNu577xGBeorPXGySxPMfqnr7kQF1OyhQHbejXnTgWBnwr9bqhwyvLcIrpd2F1klLwSNSAaE9B0CoON9jwkDPk2tXYEMNaK1uSpWsx2VFEk6t1zrL2Naxs1NxX8Bm4+O2NW/7v1briFRTfc8kd74wm7TLZvqsq81IwUKQBKv/1XW783cD0elNZ4s9bmtpUpiR9H4Gqw9XlmnYTTpOJwiDVECEXNi0vdoK2hnY+q8KH1K9cKOfiE2GcTdWjwDfBBuEoTmBWFPQmo3zY7Fq2gxjfOyPfarhBPKO9Sn0xmr2W6qGgOxuw8RXFfqZjV3Nem2g9CGUQAi7q6z8BnSvLJE9/t2DogYI/czrVSiBeoxSjrZadnYCNnZh89JOIzFcdvekHA+v7wLRODxLU2ggEfgrxcXJO7T5esRY5508UFQ0lbnQmGI8tjcRXzJkg2bA/ko7eATLJe+DvhOfW9YPbFsi3cQsyRSkVkLqy+r3uvdwISwyxKgyQkK5LILy/usLqf4crCEi7+D3XoYTazlMtt9B75ftekoLa+SpiUHnxZs8xGrDOoPnehU1w== sybren@BI",
+      "metadata": {
+        "description": "SSH key of the admin user"
+      }
     }
   },
   "resources": [
     {
-      "apiVersion": "2015-08-01",
-      "name": "[parameters('hostingPlanName')]",
-      "type": "Microsoft.Web/serverfarms",
+      "name": "Flamenco-Manager",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2018-10-01",
       "location": "[parameters('siteLocation')]",
-      "properties": {},
-      "sku": {
-        "name": "F1"
-      }
-    },
-    {
-      "apiVersion": "2015-08-01",
-      "name": "[parameters('siteName')]",
-      "type": "Microsoft.Web/sites",
-      "location": "[parameters('siteLocation')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
-      ],
       "properties": {
-        "serverFarmId": "[parameters('hostingPlanName')]"
-      },
-      "resources": [
-        {
-          "apiVersion": "2015-08-01",
-          "name": "web",
-          "type": "config",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
-          ],
-          "properties": {
-            "siteProperties": {
-              "webSocketsEnabled": true
-            }
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "sku": "18.04-LTS",
+            "offer": "UbuntuServer",
+            "version": "latest"
           }
         },
+        "osProfile": {
+          "computerName": "flamenco-manager",
+          "adminUsername": "[parameters('admin_username')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "keyData": "[parameters('admin_sshKey')]"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "resources": [
         {
           "apiVersion": "2015-08-01",
           "name": "appsettings",
           "type": "config",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')]"
           ],
           "properties": {
             "FLAMENCO_SERVER_URL": "[parameters('flamencoServerURL')]",
@@ -90,8 +110,7 @@
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
+            "[resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')]"
           ],
           "properties": {
             "RepoUrl": "[parameters('repoURL')]",
