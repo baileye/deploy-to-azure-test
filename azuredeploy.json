@@ -24,12 +24,6 @@
       "defaultValue": "cloud01diag",
       "type": "string"
     },
-    "repoURL": {
-      "type": "string"
-    },
-    "branch": {
-      "type": "string"
-    },
     "flamencoServerUrl": {
       "type": "string",
       "defaultValue": "https://cloud.blender.org/",
