@@ -46,6 +46,9 @@
       }
     }
   },
+  "variables": {
+      "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
+  },
   "resources": [
     {
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -240,6 +243,7 @@
             "ssh": {
               "publicKeys": [
                 {
+                  "path": "[variables('sshKeyPath')]",
                   "keyData": "[parameters('adminSshKey')]"
                 }
               ]
@@ -257,6 +261,13 @@
           ]
         }
       },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv4')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv6')]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'FlamencoManager.VNet', 'default')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'FlamencoManager.NIC')]"
+      ],
       "resources": [
         {
           "apiVersion": "2015-08-01",
