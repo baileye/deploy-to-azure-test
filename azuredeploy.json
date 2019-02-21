@@ -179,7 +179,7 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAddress": "10.0.0.1",
+              "privateIPAddress": "10.0.0.4",
               "privateIPAllocationMethod": "Static",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'FlamencoManager.PublicIPv4')]"
