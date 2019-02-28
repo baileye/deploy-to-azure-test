@@ -239,6 +239,9 @@
             "sku": "18.04-LTS",
             "offer": "UbuntuServer",
             "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
           }
         },
         "osProfile": {
