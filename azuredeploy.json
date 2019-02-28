@@ -273,34 +273,6 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'FlamencoManager.VNet', 'default')]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', 'FlamencoManager.NetSecGroup')]",
         "[resourceId('Microsoft.Network/networkInterfaces', 'FlamencoManager.NIC')]"
-      ],
-      "resources": [
-        {
-          "apiVersion": "2015-08-01",
-          "name": "appsettings",
-          "type": "config",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')]"
-          ],
-          "properties": {
-            "FLAMENCO_SERVER_URL": "[parameters('flamencoServerUrl')]",
-            "OWN_URL": "[concat('https://',resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager').hostNames[0])]",
-            "command": "bash scripts/azuredeploy.sh"
-          }
-        },
-        {
-          "apiVersion": "2015-08-01",
-          "name": "web",
-          "type": "sourcecontrols",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', 'Flamenco-Manager')]"
-          ],
-          "properties": {
-            "RepoUrl": "[parameters('repoURL')]",
-            "branch": "[parameters('branch')]",
-            "IsManualIntegration": true
-          }
-        }
       ]
     }
   ],
